@@ -10,6 +10,11 @@
 #include <QSqlTableModel>
 #include <QSqlRelationalTableModel>
 #include <QTableView>
+#include <QSqlRecord>
+#include <QSqlField>
+#include <QVariant>
+#include <QModelIndex>
+#include <QDebug>
 
 #define POSTGRE_DRIVER "QPSQL"
 #define DB_NAME "MyDB"
@@ -18,13 +23,16 @@
 #define NUM_DATA_FOR_CONNECT_TO_DB 5
 
 //Перечисление полей данных
-enum fieldsForConnect{
+enum fieldsForConnect
+{
     hostName = 0,
     dbName = 1,
     login = 2,
     pass = 3,
     port = 4
 };
+
+const static int NUM_COLUMS = 2;
 
 //Типы запросов
 enum requestType
@@ -54,8 +62,7 @@ public:
 
 
 signals:
-
-   void sig_SendDataFromDB(const QTableWidget *tableWg, int typeR);
+   void sig_SendDataFromDB(QTableWidget *tableWg, int typeR);
    void sig_SendStatusConnection(bool);
    void sig_SendStatusRequest(QSqlError err);
 

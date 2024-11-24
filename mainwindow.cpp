@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    //delete tbWid;//ругается значит не нужно
 }
 
 /*!
@@ -62,7 +63,7 @@ MainWindow::~MainWindow()
  */
 void MainWindow::on_act_addData_triggered()
 {
-    //Отобразим диалоговое окно. Какой метод нужно использовать?
+    //Отобразим диалоговое окно.
     dataDb->show();
 }
 
@@ -97,7 +98,6 @@ void MainWindow::on_act_connect_triggered()
         ui->lb_statusConnect->setStyleSheet("color:red");
         ui->pb_request->setEnabled(false);
     }
-
 }
 
 /*!
@@ -123,11 +123,46 @@ void MainWindow::on_pb_request_clicked()
  * \param widget
  * \param typeRequest
  */
-void MainWindow::ScreenDataFromDB(const QTableWidget *widget, int typeRequest)
+void MainWindow::ScreenDataFromDB(QTableWidget *widget, int typeRequest)
 {
+    switch (typeRequest) {
 
-    ///Тут должен быть код ДЗ
+    case requestAllFilms:
+    case requestHorrors:
+    case requestComedy:{
 
+//        ///Отобразить данные
+        ui->tb_result->setColumnCount(widget->columnCount());
+        ui->tb_result->setRowCount(widget->rowCount());
+
+        QStringList hdrs;
+        for (int i = 0; i<widget->columnCount(); ++i)
+        {
+            hdrs << widget->horizontalHeaderItem(i)->text();
+        }
+
+        ui->tb_result->setHorizontalHeaderLabels(hdrs);
+        for (int i=0; i<widget->rowCount(); ++i)
+        {
+            for (int j = 0; j<widget->columnCount(); ++j)
+            {
+                ui->tb_result->setItem(i, j, widget->item(i,j)->clone( ));
+            }
+        }
+        //ui->tb_result->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        ui->tb_result->update( );
+
+
+        //ui->tb_result = widget;
+        //ui->tb_result->update();
+        //ui->centralwidget->layout()->addWidget(ui->tb_result);
+        //ui->centralwidget->layout()->addWidget(widget);можно ли в centralwidget просто засетать view?
+        break;
+
+    }
+    default:
+        break;
+    }
 
 }
 /*!

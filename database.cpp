@@ -9,7 +9,7 @@ DataBase::DataBase(QObject *parent)
     this->queryModel = new QSqlQueryModel;
 
     //simpleQuery = new QSqlQuery();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //tableWidget = new QTableWidget();
+    this->tableWidget = new QTableWidget();
 }
 
 DataBase::~DataBase()
@@ -18,6 +18,7 @@ DataBase::~DataBase()
     delete model;
     delete view;
     delete queryModel;
+    delete tableWidget;
     //delete simpleQuery;
 }
 
@@ -102,55 +103,65 @@ QSqlError DataBase::GetLastError()
     return dataBase->lastError();
 }
 
-void DataBase::ReadAnswerFromDB(int requestType)//new
+void DataBase::ReadAnswerFromDB(int requestType)
 {
     if (requestType == requestType::requestAllFilms)
     {
         this->view->setModel(this->model);
-        this->view->hideColumn(0); //don't show the ID
+        this->view->hideColumn(0);//don't show the ID
         this->view->show();
     }
 
 
     if (requestType == requestType::requestComedy || requestType == requestType::requestHorrors)
     {
-        this->view->setModel(this->queryModel);
-        this->view->show();
+        //this->view->setModel(this->queryModel);
+        tableWidget->setColumnCount(NUM_COLUMS);
+        tableWidget->setRowCount(0);
+
+        QStringList  headers;
+        headers << "Название фильма" << "Описание фильма";
+        tableWidget->setHorizontalHeaderLabels(headers);
+        uint32_t counterRows = 0;
+
+        //начинаем заполнять tableWidget данными
+        while (true)
+        {
+            QModelIndex model_index = this->queryModel->index(counterRows, 0);
+            if (!model_index.isValid())
+            {
+                break;
+            }
+            QSqlRecord rec = this->queryModel->record(counterRows);
+            tableWidget->insertRow(counterRows);
+            ++counterRows;
+
+            for (int numColumn = 0; numColumn < NUM_COLUMS; ++numColumn)
+            {
+                QSqlField field = rec.field(numColumn);
+                QVariant variant = field.value();
+                QTableWidgetItem *item0 = new QTableWidgetItem(variant.toString());
+                tableWidget->setItem(tableWidget->rowCount() - 1, numColumn, item0);
+            }
+        }
+        emit sig_SendDataFromDB(tableWidget, requestType);
+
+
+/*
+ *          QList<QSqlRecord> result;
+ *          const QModelIndexList mil = this->view->selectionModel()->selectedRows();
+
+            Q_FOREACH( const QModelIndex & mi, mil)
+            {
+                if ( mi.isValid() ) {
+                    result.push_back(this->view->record(mi.row()));
+                }
+            }
+*/
+        }
+
+
+
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-//this->view = new QTableView;
-/*
-   QSqlTableModel* model = new QSqlTableModel;
-       model->setTable("employee");
-       model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-       model->select();
-       model->setHeaderData(0, Qt::Horizontal, tr("Name"));
-       model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
-*/
-       //QTableView* view = new QTableView;
-
-
-/*
-    std::unique_ptr<QTableView> view{new QTableView};
-    view->setModel(model);
-    view->setItemDelegate(new QSqlRelationalDelegate(view.get()));
-*/
-
-
-
-
-    //emit sig_SendDataFromDB(tableWidget, requestType);
-}
