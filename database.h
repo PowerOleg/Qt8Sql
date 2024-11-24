@@ -7,6 +7,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlTableModel>
+#include <QTableView>
 
 #define POSTGRE_DRIVER "QPSQL"
 #define DB_NAME "MyDB"
@@ -47,13 +48,14 @@ public:
     void RequestToDB(QString request);
     QSqlError GetLastError(void);
     void ConnectToDataBase(QVector<QString> dataForConnect);
+    void ReadAnswerFromDB(int answerType);
 
 
 signals:
 
    void sig_SendDataFromDB(const QTableWidget *tableWg, int typeR);
    void sig_SendStatusConnection(bool);
-
+   void sig_SendStatusRequest(QSqlError err);
 
 
 private:
@@ -61,7 +63,8 @@ private:
     QSqlDatabase* dataBase;
     QSqlQuery* simpleQuery;
     QTableWidget* tableWidget;
-    QSqlTableModel* tableModel;//new
+    //QSqlTableModel* tableModel = new QSqlTableModel;//new
+    //QTableView *view = new QTableView;//new
 
 };
 

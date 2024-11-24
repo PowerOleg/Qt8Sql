@@ -45,6 +45,11 @@ MainWindow::MainWindow(QWidget *parent)
      */
     connect(dataBase, &DataBase::sig_SendStatusConnection, this, &MainWindow::ReceiveStatusConnectionToDB);
 
+    /*
+     * Соединяем сигнал, который запрос к БД
+     */
+    connect(dataBase, &DataBase::sig_SendStatusRequest, this, &MainWindow::ReceiveStatusRequestToDB);
+
 }
 
 MainWindow::~MainWindow()
@@ -80,7 +85,7 @@ void MainWindow::on_act_connect_triggered()
        ui->lb_statusConnect->setStyleSheet("color : black");
 
 
-       auto conn = [&]{dataBase->ConnectToDataBase(dataForConnect);};
+       auto conn = [this]{dataBase->ConnectToDataBase(dataForConnect);};
        QtConcurrent::run(conn);
 
     }
@@ -100,8 +105,8 @@ void MainWindow::on_act_connect_triggered()
  */
 void MainWindow::on_pb_request_clicked()
 {
-
-    ///Тут должен быть код ДЗ
+    auto request_to_db = [this]{dataBase->RequestToDB(request);};
+    QtConcurrent::run(request_to_db);
 
 }
 
@@ -123,7 +128,7 @@ void MainWindow::ScreenDataFromDB(const QTableWidget *widget, int typeRequest)
  */
 void MainWindow::ReceiveStatusConnectionToDB(bool status)
 {
-    if(status)
+    if (status)
     {
         ui->act_connect->setText("Отключиться");
         ui->lb_statusConnect->setText("Подключено к БД");
@@ -139,8 +144,17 @@ void MainWindow::ReceiveStatusConnectionToDB(bool status)
         ui->lb_statusConnect->setStyleSheet("color:red");
         msg->exec();
     }
-
 }
 
-
-
+void MainWindow::ReceiveStatusRequestToDB(QSqlError err)
+{
+    if (err.isValid( ))
+    {
+        msg->setText(err.text());
+        msg->show();
+    }
+    else
+    {
+        dataBase->ReadAnswerFromDB(ui->cb_category->currentIndex() + 1);
+    }
+}

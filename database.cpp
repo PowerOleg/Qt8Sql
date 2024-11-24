@@ -3,15 +3,15 @@
 DataBase::DataBase(QObject *parent)
     : QObject{parent}
 {
-
     dataBase = new QSqlDatabase();
-
-
+    simpleQuery = new QSqlQuery();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    tableWidget = new QTableWidget();
 }
 
 DataBase::~DataBase()
 {
     delete dataBase;
+    delete simpleQuery;
 }
 
 /*!
@@ -21,9 +21,7 @@ DataBase::~DataBase()
  */
 void DataBase::AddDataBase(QString driver, QString nameDB)
 {
-
     *dataBase = QSqlDatabase::addDatabase(driver, nameDB);
-
 }
 
 /*!
@@ -33,19 +31,14 @@ void DataBase::AddDataBase(QString driver, QString nameDB)
  */
 void DataBase::ConnectToDataBase(QVector<QString> data)
 {
-
     dataBase->setHostName(data[hostName]);
     dataBase->setDatabaseName(data[dbName]);
     dataBase->setUserName(data[login]);
     dataBase->setPassword(data[pass]);
     dataBase->setPort(data[port].toInt());
 
-
-    ///Тут должен быть код ДЗ
-
-
     bool status;
-    status = dataBase->open( );
+    status = dataBase->open();
     emit sig_SendStatusConnection(status);
 
 }
@@ -55,7 +48,6 @@ void DataBase::ConnectToDataBase(QVector<QString> data)
  */
 void DataBase::DisconnectFromDataBase(QString nameDb)
 {
-
     *dataBase = QSqlDatabase::database(nameDb);
     dataBase->close();
 
@@ -67,9 +59,11 @@ void DataBase::DisconnectFromDataBase(QString nameDb)
  */
 void DataBase::RequestToDB(QString request)
 {
+    *simpleQuery = QSqlQuery(*dataBase);
+    //*tableModel = new QSqlTableModel();//В объект QSqlTableModel необходимо передавать соединение с БД после dataBase->AddDataBase(POSTGRE_DRIVER, DB_NAME);
 
-    ///Тут должен быть код ДЗ
-
+    simpleQuery->exec(request);
+    emit sig_SendStatusRequest(simpleQuery->lastError( ));
 }
 
 /*!
@@ -78,4 +72,12 @@ void DataBase::RequestToDB(QString request)
 QSqlError DataBase::GetLastError()
 {
     return dataBase->lastError();
+}
+
+void DataBase::ReadAnswerFromDB(int requestType)//new
+{
+    printf("read answer from db");
+
+
+    //emit sig_SendDataFromDB(tableWidget, requestType);
 }
