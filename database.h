@@ -5,8 +5,10 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlQueryModel>
 #include <QSqlError>
 #include <QSqlTableModel>
+#include <QSqlRelationalTableModel>
 #include <QTableView>
 
 #define POSTGRE_DRIVER "QPSQL"
@@ -25,8 +27,8 @@ enum fieldsForConnect{
 };
 
 //Типы запросов
-enum requestType{
-
+enum requestType
+{
     requestAllFilms = 1,
     requestComedy   = 2,
     requestHorrors  = 3
@@ -45,10 +47,10 @@ public:
 
     void AddDataBase(QString driver, QString nameDB = "");
     void DisconnectFromDataBase(QString nameDb = "");
-    void RequestToDB(QString request);
+    void RequestToDB(int film_category, QString request);
     QSqlError GetLastError(void);
     void ConnectToDataBase(QVector<QString> dataForConnect);
-    void ReadAnswerFromDB(int answerType);
+    void ReadAnswerFromDB(int requestType);
 
 
 signals:
@@ -63,8 +65,9 @@ private:
     QSqlDatabase* dataBase;
     QSqlQuery* simpleQuery;
     QTableWidget* tableWidget;
-    //QSqlTableModel* tableModel = new QSqlTableModel;//new
-    //QTableView *view = new QTableView;//new
+    QSqlTableModel* model;
+    QTableView* view;
+    QSqlQueryModel* queryModel;
 
 };
 

@@ -49,6 +49,8 @@ private:
                       "JOIN film_category fc on f.film_id = fc.film_id "
                       "JOIN category c on c.category_id  = fc.category_id";
 
+    QString request_comedy_category = "SELECT title, description FROM film f JOIN film_category fc on f.film_id = fc.film_id JOIN category c on c.category_id = fc.category_id WHERE c.name = 'Comedy'";
+    QString request_horror_category = "SELECT title, description FROM film f JOIN film_category fc on f.film_id = fc.film_id JOIN category c on c.category_id = fc.category_id WHERE c.name = 'Horror'";
 
 };
 #endif // MAINWINDOW_H

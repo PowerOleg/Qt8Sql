@@ -105,7 +105,15 @@ void MainWindow::on_act_connect_triggered()
  */
 void MainWindow::on_pb_request_clicked()
 {
-    auto request_to_db = [this]{dataBase->RequestToDB(request);};
+    if (ui->cb_category->currentIndex() + 1 == requestType::requestHorrors)
+    {
+        request = request_horror_category;
+    }
+    if (ui->cb_category->currentIndex() + 1 == requestType::requestComedy)
+    {
+        request = request_comedy_category;
+    }
+    auto request_to_db = [this]{dataBase->RequestToDB(ui->cb_category->currentIndex() + 1, request);};
     QtConcurrent::run(request_to_db);
 
 }

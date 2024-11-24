@@ -3,15 +3,22 @@
 DataBase::DataBase(QObject *parent)
     : QObject{parent}
 {
-    dataBase = new QSqlDatabase();
-    simpleQuery = new QSqlQuery();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    tableWidget = new QTableWidget();
+    this->dataBase = new QSqlDatabase();
+    this->model = new QSqlTableModel;
+    this->view = new QTableView;
+    this->queryModel = new QSqlQueryModel;
+
+    //simpleQuery = new QSqlQuery();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //tableWidget = new QTableWidget();
 }
 
 DataBase::~DataBase()
 {
     delete dataBase;
-    delete simpleQuery;
+    delete model;
+    delete view;
+    delete queryModel;
+    //delete simpleQuery;
 }
 
 /*!
@@ -57,13 +64,34 @@ void DataBase::DisconnectFromDataBase(QString nameDb)
  * \param request - SQL запрос
  * \return
  */
-void DataBase::RequestToDB(QString request)
+void DataBase::RequestToDB(int film_category, QString request)
 {
-    *simpleQuery = QSqlQuery(*dataBase);
-    //*tableModel = new QSqlTableModel();//В объект QSqlTableModel необходимо передавать соединение с БД после dataBase->AddDataBase(POSTGRE_DRIVER, DB_NAME);
+    //пример использования QSqlQueryModel
+    if (film_category == requestType::requestHorrors || film_category == requestType::requestComedy)
+    {
+        this->queryModel->setQuery(request, *dataBase);
+        this->queryModel->setHeaderData(0, Qt::Horizontal, tr("Название фильма"));
+        this->queryModel->setHeaderData(1, Qt::Horizontal, tr("Описание фильма"));
+        emit sig_SendStatusRequest(this->queryModel->lastError());
+    }
 
-    simpleQuery->exec(request);
-    emit sig_SendStatusRequest(simpleQuery->lastError( ));
+    //пример использования TableModel
+    if (film_category == requestType::requestAllFilms)
+    {
+        this->model = new QSqlTableModel(this, *dataBase);
+        this->model->setTable("film");
+        this->model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        this->model->select();
+        emit sig_SendStatusRequest(this->model->lastError( ));
+    }
+
+
+
+
+    //пример использования Sql запроса
+    //*simpleQuery = QSqlQuery(*dataBase);
+    //simpleQuery->exec(request);
+    //emit sig_SendStatusRequest(simpleQuery->lastError( ));
 }
 
 /*!
@@ -76,7 +104,52 @@ QSqlError DataBase::GetLastError()
 
 void DataBase::ReadAnswerFromDB(int requestType)//new
 {
-    printf("read answer from db");
+    if (requestType == requestType::requestAllFilms)
+    {
+        this->view->setModel(this->model);
+        this->view->hideColumn(0); //don't show the ID
+        this->view->show();
+    }
+
+
+    if (requestType == requestType::requestComedy || requestType == requestType::requestHorrors)
+    {
+        this->view->setModel(this->queryModel);
+        this->view->show();
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//this->view = new QTableView;
+/*
+   QSqlTableModel* model = new QSqlTableModel;
+       model->setTable("employee");
+       model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+       model->select();
+       model->setHeaderData(0, Qt::Horizontal, tr("Name"));
+       model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
+*/
+       //QTableView* view = new QTableView;
+
+
+/*
+    std::unique_ptr<QTableView> view{new QTableView};
+    view->setModel(model);
+    view->setItemDelegate(new QSqlRelationalDelegate(view.get()));
+*/
+
+
 
 
     //emit sig_SendDataFromDB(tableWidget, requestType);
