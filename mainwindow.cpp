@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     /*
      * Соединяем сигнал, который передает ответ от БД с методом, который отображает ответ в ПИ
      */
-     connect(dataBase, &DataBase::sig_SendDataFromDB, this, &MainWindow::ScreenDataFromDB);
+     //connect(dataBase, &DataBase::sig_SendDataFromDB, this, &MainWindow::ScreenDataFromDB);
 
     /*
      *  Сигнал для подключения к БД
@@ -114,8 +114,60 @@ void MainWindow::on_pb_request_clicked()
         request = request_comedy_category;
     }
     auto request_to_db = [this]{dataBase->RequestToDB(ui->cb_category->currentIndex() + 1, request);};
-    QtConcurrent::run(request_to_db);
+    QtConcurrent::run(request_to_db);//???????????????????????????????????????????????????????????????????????????forgot what is this
 
+}
+
+/*!
+ * \brief Метод изменяет состояние формы в зависимости от статуса подключения к БД
+ * \param status
+ */
+void MainWindow::ReceiveStatusConnectionToDB(bool status)
+{
+    if (status)
+    {
+        ui->act_connect->setText("Отключиться");
+        ui->lb_statusConnect->setText("Подключено к БД");
+        ui->lb_statusConnect->setStyleSheet("color:green");
+        ui->pb_request->setEnabled(true);
+    }
+    else
+    {
+        dataBase->DisconnectFromDataBase(DB_NAME);
+        msg->setIcon(QMessageBox::Critical);
+        msg->setText(dataBase->GetLastError().text());
+        ui->lb_statusConnect->setText("Отключено");
+        ui->lb_statusConnect->setStyleSheet("color:red");
+        msg->exec();
+    }
+}
+
+void MainWindow::ReceiveStatusRequestToDB(QSqlQueryModel* model)//QSqlError err)
+{
+    const QSqlError err = model->lastError();
+    if (err.isValid())
+    {
+        msg->setText(err.text());
+        msg->show();
+    }
+    else
+    {
+        ui->tv_result->setModel(model);
+        if (ui->cb_category->currentIndex() == 0)
+        {
+            ui->tv_result->hideColumn(0);
+        } else
+        {
+             ui->tv_result->showColumn(0);
+        }
+
+        //dataBase->ReadAnswerFromDB(ui->cb_category->currentIndex() + 1);//
+    }
+}
+
+void MainWindow::on_pb_clear_clicked()
+{
+    ui->tv_result->setModel(new QSqlQueryModel);
 }
 
 /*!
@@ -123,7 +175,7 @@ void MainWindow::on_pb_request_clicked()
  * \param widget
  * \param typeRequest
  */
-void MainWindow::ScreenDataFromDB(QTableWidget *widget, int typeRequest)
+/*void MainWindow::ScreenDataFromDB(QTableWidget *widget, int typeRequest)
 {
     switch (typeRequest) {
 
@@ -131,7 +183,7 @@ void MainWindow::ScreenDataFromDB(QTableWidget *widget, int typeRequest)
     case requestHorrors:
     case requestComedy:{
 
-//        ///Отобразить данные
+        ///Отобразить данные
         ui->tb_result->setColumnCount(widget->columnCount());
         ui->tb_result->setRowCount(widget->rowCount());
 
@@ -164,40 +216,4 @@ void MainWindow::ScreenDataFromDB(QTableWidget *widget, int typeRequest)
         break;
     }
 
-}
-/*!
- * \brief Метод изменяет стотояние формы в зависимости от статуса подключения к БД
- * \param status
- */
-void MainWindow::ReceiveStatusConnectionToDB(bool status)
-{
-    if (status)
-    {
-        ui->act_connect->setText("Отключиться");
-        ui->lb_statusConnect->setText("Подключено к БД");
-        ui->lb_statusConnect->setStyleSheet("color:green");
-        ui->pb_request->setEnabled(true);
-    }
-    else
-    {
-        dataBase->DisconnectFromDataBase(DB_NAME);
-        msg->setIcon(QMessageBox::Critical);
-        msg->setText(dataBase->GetLastError().text());
-        ui->lb_statusConnect->setText("Отключено");
-        ui->lb_statusConnect->setStyleSheet("color:red");
-        msg->exec();
-    }
-}
-
-void MainWindow::ReceiveStatusRequestToDB(QSqlError err)
-{
-    if (err.isValid( ))
-    {
-        msg->setText(err.text());
-        msg->show();
-    }
-    else
-    {
-        dataBase->ReadAnswerFromDB(ui->cb_category->currentIndex() + 1);
-    }
-}
+}*/

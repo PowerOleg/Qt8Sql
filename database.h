@@ -58,13 +58,13 @@ public:
     void RequestToDB(int film_category, QString request);
     QSqlError GetLastError(void);
     void ConnectToDataBase(QVector<QString> dataForConnect);
-    void ReadAnswerFromDB(int requestType);
+    //void ReadAnswerFromDB(int requestType);
 
 
 signals:
-   void sig_SendDataFromDB(QTableWidget *tableWg, int typeR);
+   //void sig_SendDataFromDB(QSqlTableModel* model, int typeR);
    void sig_SendStatusConnection(bool);
-   void sig_SendStatusRequest(QSqlError err);
+   void sig_SendStatusRequest(QSqlQueryModel* model);
 
 
 private:
@@ -73,7 +73,7 @@ private:
     QSqlQuery* simpleQuery;
     QTableWidget* tableWidget;
     QSqlTableModel* model;
-    QTableView* view;
+    //QTableView* view;
     QSqlQueryModel* queryModel;
 
 };

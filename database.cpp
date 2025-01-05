@@ -5,10 +5,10 @@ DataBase::DataBase(QObject *parent)
 {
     this->dataBase = new QSqlDatabase();
     this->model = new QSqlTableModel;
-    this->view = new QTableView;
+    //this->view = new QTableView;
     this->queryModel = new QSqlQueryModel;
 
-    //simpleQuery = new QSqlQuery();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //simpleQuery = new QSqlQuery();
     this->tableWidget = new QTableWidget();
 }
 
@@ -16,7 +16,7 @@ DataBase::~DataBase()
 {
     delete dataBase;
     delete model;
-    delete view;
+    //delete view;
     delete queryModel;
     delete tableWidget;
     //delete simpleQuery;
@@ -73,7 +73,7 @@ void DataBase::RequestToDB(int film_category, QString request)
         this->queryModel->setQuery(request, *dataBase);
         this->queryModel->setHeaderData(0, Qt::Horizontal, tr("Название фильма"));
         this->queryModel->setHeaderData(1, Qt::Horizontal, tr("Описание фильма"));
-        emit sig_SendStatusRequest(this->queryModel->lastError());
+        emit sig_SendStatusRequest(this->queryModel);
     }
 
     //пример использования TableModel
@@ -83,16 +83,13 @@ void DataBase::RequestToDB(int film_category, QString request)
         this->model->setTable("film");
         this->model->setEditStrategy(QSqlTableModel::OnManualSubmit);
         this->model->select();
-        emit sig_SendStatusRequest(this->model->lastError( ));
+        emit sig_SendStatusRequest(this->model);
     }
-
-
-
 
     //пример использования Sql запроса
     //*simpleQuery = QSqlQuery(*dataBase);
     //simpleQuery->exec(request);
-    //emit sig_SendStatusRequest(simpleQuery->lastError( ));
+    //emit sig_SendStatusRequest(simpleQuery);
 }
 
 /*!
@@ -103,13 +100,13 @@ QSqlError DataBase::GetLastError()
     return dataBase->lastError();
 }
 
-void DataBase::ReadAnswerFromDB(int requestType)
+/*void DataBase::ReadAnswerFromDB(int requestType)
 {
     if (requestType == requestType::requestAllFilms)
     {
-        this->view->setModel(this->model);
-        this->view->hideColumn(0);//don't show the ID
-        this->view->show();
+        //this->view->setModel(this->model);
+        //this->view->hideColumn(0);//don't show the ID
+        //this->view->show();
     }
 
 
@@ -144,24 +141,20 @@ void DataBase::ReadAnswerFromDB(int requestType)
                 tableWidget->setItem(tableWidget->rowCount() - 1, numColumn, item0);
             }
         }
-        emit sig_SendDataFromDB(tableWidget, requestType);
+        emit sig_SendDataFromDB(this->model, requestType);
 
 
-/*
- *          QList<QSqlRecord> result;
- *          const QModelIndexList mil = this->view->selectionModel()->selectedRows();
 
-            Q_FOREACH( const QModelIndex & mi, mil)
-            {
-                if ( mi.isValid() ) {
-                    result.push_back(this->view->record(mi.row()));
-                }
-            }
-*/
+           //QList<QSqlRecord> result;
+           //const QModelIndexList mil = this->view->selectionModel()->selectedRows();
+
+            //Q_FOREACH( const QModelIndex & mi, mil)
+            //{
+            //    if ( mi.isValid() ) {
+            //        result.push_back(this->view->record(mi.row()));
+            //    }
+            //}
+
         }
-
-
-
-
     }
-
+*/
