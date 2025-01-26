@@ -4,7 +4,6 @@ DataBase::DataBase(QObject *parent)
     : QObject{parent}
 {
     this->dataBase = new QSqlDatabase();
-    this->model = new QSqlTableModel;
     //this->view = new QTableView;
     this->queryModel = new QSqlQueryModel;
 
